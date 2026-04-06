@@ -1,3 +1,7 @@
+![GitHub License](https://img.shields.io/badge/Security-Encrypted-black?style=for-the-badge&logo=lock)
+![GitHub Top Language](https://img.shields.io/badge/Language-Vanilla_JS-yellow?style=for-the-badge&logo=javascript)
+![GitHub Pages](https://img.shields.io/badge/Status-Live_on_Pages-green?style=for-the-badge&logo=github)
+
 <img width="1280" height="720" alt="Red and Black Retro Landscape YouTube Thumbnail background" src="https://github.com/user-attachments/assets/e5a8792d-7f24-4d4b-9f4b-beb0b3a4843a" />
 
 # 🗄️ Pocket Balance Inc
