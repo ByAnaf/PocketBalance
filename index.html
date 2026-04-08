@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POCKET / VAULT ULTIMATE v4</title>
+    <title>Pocket Balance By Anaf</title>
     <style>
         :root {
             --background: #ffffff; --foreground: #0a0a0a; --border: #e5e5e5;
@@ -51,14 +51,14 @@
 <div id="app-container">
     <div id="auth-gate">
         <div id="login-box" class="hidden" style="height: 80vh; display: flex; flex-direction: column; justify-content: center;">
-            <h2>ACCESS_VAULT</h2>
+            <h2>CREATE NEW ACCOUNT</h2>
             <input type="text" id="log-user" placeholder="USERNAME">
             <input type="password" id="log-pass" placeholder="PASSWORD">
-            <button onclick="login()">UNLOCK</button>
+            <button onclick="login()">CONTINUE</button>
             <p onclick="toggleAuth(true)" style="font-size:0.5rem; text-align:center; cursor:pointer; margin-top:20px; opacity:0.6;">NEW USER? INITIALIZE</p>
         </div>
         <div id="signup-box" class="hidden" style="height: 80vh; display: flex; flex-direction: column; justify-content: center;">
-            <h2>INITIALIZE_VAULT</h2>
+            <h2>LOGIN</h2>
             <input type="text" id="reg-user" placeholder="USERNAME">
             <input type="password" id="reg-pass" placeholder="PASSWORD">
             <button onclick="register()">CREATE ACCOUNT</button>
@@ -67,7 +67,7 @@
 
     <div id="main-app" class="hidden">
         <div id="page-vault" class="page">
-            <div class="page-header"><div>Pocket Balance Inc</div><button onclick="logout()" style="width:auto; padding:5px 10px; font-size:0.6rem;">LOGOUT</button></div>
+            <div class="page-header"><div>Pocket Balance</div><button onclick="logout()" style="width:auto; padding:5px 10px; font-size:0.6rem;">LOGOUT</button></div>
             <div style="font-size:0.6rem; color:var(--muted-foreground)">BALANCE</div>
             <div class="balance-amount">৳<span id="bal-val">0.00</span></div>
             <input type="number" id="tx-amt" placeholder="0.00"><input type="text" id="tx-desc" placeholder="NOTE">
