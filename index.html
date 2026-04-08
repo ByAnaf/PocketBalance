@@ -18,7 +18,7 @@
             --background: #e7e5e4;
             --foreground: #1e293b;
             --muted-foreground: #6b7280;
-            --font-mono: 'Roboto Mono', monospace;
+            --font-mono: ui-monospace, SFMono-Regular, 'Roboto Mono', monospace;
         }
 
         .dark {
@@ -99,7 +99,7 @@
         .progress-container { width: 100%; height: 10px; background: var(--muted); border-radius: 20px; margin: 15px 0; overflow: hidden; }
         .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.8s ease; }
         
-        .milestone-card, .decidr-card, .extra-item { 
+        .milestone-card, .decidr-card, .memo-item { 
             background: var(--card); 
             padding: 20px; 
             border-radius: var(--radius); 
@@ -137,7 +137,7 @@
 
     <div id="main-app" class="hidden">
         <div id="page-vault" class="page">
-            <div class="page-header"><div>VAULT PRO</div><button onclick="logout()" style="width:auto; padding:5px 12px; font-size:0.6rem; background:var(--muted); color:var(--foreground);">LOGOUT</button></div>
+            <div class="page-header"><div>VAULT</div><button onclick="logout()" style="width:auto; padding:5px 12px; font-size:0.6rem; background:var(--muted); color:var(--foreground);">LOGOUT</button></div>
             <div style="font-size:0.65rem; color:var(--muted-foreground); font-weight:bold;">AVAILABLE BALANCE</div>
             <div class="balance-amount">৳<span id="bal-val">0.00</span></div>
             <input type="number" id="tx-amt" placeholder="0.00">
@@ -150,7 +150,7 @@
         </div>
 
         <div id="page-milestones" class="page hidden">
-            <div class="page-header"><div>MILESTONES</div></div>
+            <div class="page-header"><div>GOALS</div></div>
             <div id="milestone-setup" class="hidden">
                 <input type="text" id="ms-name" placeholder="GOAL NAME">
                 <input type="number" id="ms-target" placeholder="TARGET AMOUNT (৳)">
@@ -160,7 +160,7 @@
         </div>
 
         <div id="page-decidr" class="page hidden">
-            <div class="page-header"><div>THE DECIDR</div></div>
+            <div class="page-header"><div>DECIDR</div></div>
             <div class="decidr-card">
                 <input type="text" id="decision-task" placeholder="WHAT IS THE DECISION?">
                 <label class="q-label">WILL THIS MATTER IN 1 YEAR?</label>
@@ -243,11 +243,79 @@
         const amt = parseFloat(document.getElementById('tx-amt').value);
         if (isNaN(amt)) return;
         type === 'add' ? balance += amt : balance -= amt;
-        logs.unshift({ amt: amt.toFixed(2), type, desc: document.getElementById('tx-desc').value.toUpperCase() || 'TRANSACTION', time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
+        logs.unshift({ amt: amt.toFixed(2), type, desc: document.getElementById('tx-desc').value.toUpperCase() || 'TX', time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
         document.getElementById('tx-amt').value = ''; document.getElementById('tx-desc').value = '';
         save(); updateUI();
     }
 
     function runDecidr() {
         const score = parseInt(document.getElementById('q-time').value) + parseInt(document.getElementById('q-desire').value) + parseInt(document.getElementById('q-goal').value);
-        let result = score >= 2 ? `<span style="color:#10b981;">[ EXECUTE: POSITIVE ALIGNMENT ]</span>` : `<span style="color:#ef4444;">
+        let result = score >= 2 ? `<span style="color:#10b981;">[ EXECUTE: POSITIVE ALIGNMENT ]</span>` : `<span style="color:#ef4444;">[ ABORT: HIGH REGRET RISK ]</span>`;
+        document.getElementById('decidr-result').innerHTML = result;
+    }
+
+    function createMilestone() {
+        const name = document.getElementById('ms-name').value.toUpperCase();
+        const target = parseFloat(document.getElementById('ms-target').value);
+        if(!name || isNaN(target)) return;
+        milestone = { name, target, current: 0, completed: false };
+        save(); updateUI();
+    }
+
+    function contributeMilestone() {
+        const amt = parseFloat(document.getElementById('ms-contribute').value);
+        if(isNaN(amt) || !milestone) return;
+        milestone.current += amt;
+        if(milestone.current >= milestone.target) { milestone.current = milestone.target; milestone.completed = true; alert("GOAL ACHIEVED! 🎉"); }
+        document.getElementById('ms-contribute').value = '';
+        save(); updateUI();
+    }
+
+    function resetMilestone() { if(confirm("DELETE GOAL?")) { milestone = null; save(); updateUI(); } }
+
+    function addExtra() {
+        const msg = document.getElementById('extra-msg').value.toUpperCase();
+        if(!msg) return;
+        extras.unshift({ msg, status: document.getElementById('extra-status').value, id: Date.now() });
+        document.getElementById('extra-msg').value = '';
+        save(); updateUI();
+    }
+
+    function updateUI() {
+        document.getElementById('bal-val').innerText = balance.toFixed(2);
+        document.getElementById('ledger').innerHTML = logs.slice(0, 5).map(l => `<div class="log-item"><span>${l.type==='add'?'+':'-'}৳${l.amt} | ${l.desc}</span><span style="opacity:0.6;">${l.time}</span></div>`).join('');
+        
+        const msDisplay = document.getElementById('milestone-display');
+        const msSetup = document.getElementById('milestone-setup');
+        if (!milestone) {
+            msSetup.classList.remove('hidden'); msDisplay.innerHTML = '';
+        } else {
+            msSetup.classList.add('hidden');
+            const percent = ((milestone.current / milestone.target) * 100).toFixed(0);
+            msDisplay.innerHTML = `
+                <div class="milestone-card">
+                    <span class="status-tag" style="background:${milestone.completed ? '#10b981' : '#6366f1'}">${milestone.completed ? 'FINISHED' : 'ACTIVE'}</span>
+                    <div style="font-size:1rem; font-weight:900;">${milestone.name}</div>
+                    <div style="font-size:0.65rem; margin-top:5px; color:var(--muted-foreground)">TARGET: ৳${milestone.target.toFixed(2)}</div>
+                    <div class="progress-container"><div class="progress-fill" style="width:${percent}%"></div></div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:bold;"><span>${percent}%</span><span>৳${milestone.current.toFixed(2)}</span></div>
+                    ${!milestone.completed ? `
+                        <input type="number" id="ms-contribute" placeholder="DEPOSIT AMOUNT" style="margin-top:20px;">
+                        <button onclick="contributeMilestone()">DEPOSIT</button>
+                    ` : `<div style="margin-top:20px; color:#10b981; font-weight:900; text-align:center;">TARGET REACHED! 🎉</div>`}
+                    <p onclick="resetMilestone()" style="font-size:0.55rem; text-align:center; cursor:pointer; margin-top:20px; opacity:0.4;">[ TERMINATE ]</p>
+                </div>`;
+        }
+        document.getElementById('extras-list').innerHTML = extras.map(e => `<div class="memo-item"><span><b style="color:var(--primary)">[${e.status}]</b> ${e.msg}</span></div>`).join('');
+    }
+
+    function save() {
+        localStorage.setItem(`${user}_bal`, balance); localStorage.setItem(`${user}_logs`, JSON.stringify(logs));
+        localStorage.setItem(`${user}_extras`, JSON.stringify(extras)); localStorage.setItem(`${user}_ms`, JSON.stringify(milestone));
+    }
+
+    function logout() { localStorage.removeItem('active_session'); location.reload(); }
+    function toggleTheme() { document.body.classList.toggle('dark'); localStorage.setItem('theme', document.body.classList.contains('dark')?'dark':'light'); }
+</script>
+</body>
+</html>
